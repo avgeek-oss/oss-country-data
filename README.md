@@ -152,6 +152,21 @@ maps, or missing parent references. Tests validate the data and public API.
 Package verification installs the packed tarball into a clean temporary project
 and checks JavaScript and TypeScript consumers.
 
+## Publishing
+
+GitHub Actions publishes stable `vX.Y.Z` tags to public npm after both Node.js
+22 and 24 verification jobs pass. The tag must match `package.json` and point
+to a commit on `main`. The publish job downloads the tested tarball, checks its
+integrity, publishes it, then verifies the registry bytes and a fresh consumer.
+
+Configure the package's npm trusted publisher for owner `avgeek-oss`, repository
+`oss-country-data`, and workflow `ci.yml`, with publishing allowed. GitHub OIDC
+authenticates the publish job; no npm token secret is needed. npm supplies
+provenance for trusted publications.
+
+To release, merge the version and snapshot changes after CI passes, then push
+the matching tag from that merged commit. Never reuse a version already on npm.
+
 ## Licensing
 
 Package code is MIT. The country database includes ODbL-1.0-derived reference
