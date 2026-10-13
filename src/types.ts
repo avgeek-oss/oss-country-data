@@ -65,3 +65,27 @@ export interface CountryOptionsConfig {
   readonly locale?: string;
   readonly filter?: CountryFilter;
 }
+
+export interface CountryQueryRecord extends Country {
+  /** Calling code formatted with a leading +, or null when unavailable. */
+  readonly phonePrefix: string | null;
+}
+
+export interface CountryQueryFilter extends CountryFilter {
+  readonly hasCallingCode?: boolean;
+  readonly phoneCallingCode?: string;
+}
+
+export type CountrySortField = "countryName" | "countryAlphaTwo" | "countryAlphaThree" | "countryNumeric";
+
+export interface CountryQuery<Field extends keyof CountryQueryRecord = keyof CountryQueryRecord> {
+  readonly select?: readonly Field[];
+  readonly where?: CountryQueryFilter;
+  /** Localize countryName when supplied; other country fields retain their stored values. */
+  readonly locale?: string;
+  readonly orderBy?: {
+    readonly field: CountrySortField;
+    readonly direction?: "asc" | "desc";
+  };
+  readonly limit?: number;
+}

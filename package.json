@@ -21,6 +21,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test test/*.test.mjs",
     "test:package": "node scripts/test-package.mjs",
+    "test:published": "node scripts/test-package.mjs --published",
     "verify": "npm run typecheck && npm test && npm run test:package",
     "prepack": "npm run build"
   },

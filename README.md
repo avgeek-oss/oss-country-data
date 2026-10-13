@@ -4,9 +4,12 @@ Country reference data and localized names for JavaScript applications. Includes
 249 ISO countries and territories, with no runtime dependencies or network calls.
 Flag artwork is hosted separately as SVGs on `oss-country-flags.avgeek.ltd`.
 
-The package is prepared for npm as `@avgeek-oss/country-data`. It has not been
-published yet. It exports ESM and TypeScript declarations for Node.js 22+ and
-modern browser bundlers.
+Package name: `@avgeek-oss/country-data`. It exports ESM and TypeScript
+declarations for Node.js 22+ and modern browser bundlers.
+
+```sh
+npm install @avgeek-oss/country-data
+```
 
 ```ts
 import {
@@ -28,6 +31,7 @@ getCountriesByCallingCode('+1'); // All matching countries/territories
 | Export | Purpose |
 | --- | --- |
 | `countries` | Deeply frozen country snapshot, sorted by alpha-2 code |
+| `queryCountries({ select?, where?, locale?, orderBy?, limit? })` | Filter, localize, sort, and select fields in one query |
 | `getCountry(code)` | Find by alpha-2, alpha-3, or three-digit numeric string |
 | `getCountryByAlphaTwo(code)` | Find by alpha-2 code |
 | `getCountryByAlphaThree(code)` | Find by alpha-3 code |
@@ -56,6 +60,41 @@ strings. `officialLanguageCode` uses the stored ISO language codes, generally
 ISO 639-3 (`eng`, `hin`), rather than the BCP 47 keys used for localization.
 IANA timezone identifiers are matched exactly. Results containing countries
 reference immutable data; modify copies if an application needs editable state.
+
+## Queries
+
+For a country/phone picker, request just the fields needed by the application:
+
+```ts
+import { queryCountries } from '@avgeek-oss/country-data';
+
+const countries = queryCountries({
+  select: ['countryAlphaTwo', 'countryName', 'phonePrefix'],
+  where: { hasCallingCode: true },
+  locale: 'en',
+  orderBy: { field: 'countryName', direction: 'asc' },
+});
+// Includes { countryAlphaTwo: 'IN', countryName: 'India', phonePrefix: '+91' }
+```
+
+TypeScript infers the selected fields; unselected fields are not present in the
+result type. Omit `select` to return every country field plus `phonePrefix`.
+`phoneCallingCode` remains the stored digit string; `phonePrefix` is a convenience
+field formatted with `+`, or null when no calling code is recorded.
+
+`where` supports all `CountryFilter` properties plus `hasCallingCode` and
+`phoneCallingCode` (digits or a leading `+`). Conditions are combined with AND.
+For example, `where: { phoneCallingCode: '+1' }` returns every matching entry,
+preserving shared calling-code relationships. `hasCallingCode: false` selects
+only entries without a calling code.
+
+Supplying `locale` localizes `countryName`; official and native names retain
+their stored values. Without it, names retain the snapshot's common names.
+Sorting supports `countryName`, `countryAlphaTwo`, `countryAlphaThree`, and
+`countryNumeric`, in either direction. Without sorting, results use alpha-2
+snapshot order. `limit` applies after sorting and must be a non-negative safe
+integer. Queries return new top-level objects, with shared immutable nested
+data. This is a local package API, not an HTTP endpoint.
 
 ## Localization
 

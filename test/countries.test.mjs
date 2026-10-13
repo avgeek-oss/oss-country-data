@@ -5,6 +5,7 @@ import {
   getCountryByNumeric, getCountryName, getCountryFlagUrl, resolveLocale,
   getCountryOptions, searchCountries, filterCountries, getParentCountry,
   getCountryTerritories, getCountriesByCallingCode,
+  queryCountries,
 } from '../dist/index.js';
 import { validateData } from '../scripts/validate-data.mjs';
 
@@ -102,4 +103,41 @@ test('nested shared data cannot be mutated by consumers', () => {
   assert.throws(() => { country.currencyCodes.push('XXX'); }, TypeError);
   assert.throws(() => { country.countryLocalizedNames.ta = 'Changed'; }, TypeError);
   assert.throws(() => { country.capitalCities[0].roles.push('test'); }, TypeError);
+});
+
+test('query returns projected phone-picker fields with localized names and sorted prefixes', () => {
+  const rows = queryCountries({
+    select: ['countryAlphaTwo', 'countryName', 'phonePrefix'],
+    where: { hasCallingCode: true }, locale: 'fr',
+    orderBy: { field: 'countryName' },
+  });
+  assert.equal(rows.length, 243);
+  assert.deepEqual(rows.find(c => c.countryAlphaTwo === 'DE'), { countryAlphaTwo: 'DE', countryName: 'Allemagne', phonePrefix: '+49' });
+  assert.deepEqual(rows.find(c => c.countryAlphaTwo === 'IN'), { countryAlphaTwo: 'IN', countryName: 'Inde', phonePrefix: '+91' });
+  assert.ok(rows.every(c => Object.keys(c).length === 3 && /^\+\d+$/.test(c.phonePrefix)));
+  const collator = new Intl.Collator('fr');
+  for (let i = 1; i < rows.length; i++) assert.ok(collator.compare(rows[i - 1].countryName, rows[i].countryName) <= 0);
+});
+
+test('query combines filters, retains shared calling codes, and preserves nulls', () => {
+  const rows = queryCountries({ where: { phoneCallingCode: '+1', isIndependent: true } });
+  assert.ok(rows.some(c => c.countryAlphaTwo === 'US') && rows.some(c => c.countryAlphaTwo === 'CA'));
+  assert.ok(rows.every(c => c.phonePrefix === '+1' && c.isIndependent));
+  assert.equal(queryCountries({ where: { hasCallingCode: false } }).length, 6);
+  assert.ok(queryCountries({ where: { hasCallingCode: false } }).every(c => c.phoneCallingCode === null && c.phonePrefix === null));
+  assert.deepEqual(queryCountries({ where: { hasCallingCode: false, phoneCallingCode: '91' } }), []);
+  assert.equal(queryCountries({ locale: 'ta', where: { phoneCallingCode: '91' } })[0].countryName, 'இந்தியா');
+  assert.equal(queryCountries().length, 249);
+});
+
+test('query sorts before limiting and does not mutate the shared snapshot', () => {
+  const first = queryCountries({ select: ['countryAlphaTwo'], orderBy: { field: 'countryAlphaTwo', direction: 'desc' }, limit: 2 });
+  assert.deepEqual(first, [{ countryAlphaTwo: 'ZW' }, { countryAlphaTwo: 'ZM' }]);
+  assert.deepEqual(queryCountries({ limit: 0 }), []);
+  for (const limit of [-1, 1.5, NaN, Infinity]) assert.throws(() => queryCountries({ limit }), RangeError);
+  const rows = queryCountries();
+  rows[0].countryName = 'Changed';
+  assert.notEqual(getCountry('AD').countryName, 'Changed');
+  assert.throws(() => rows[0].currencyCodes.push('XXX'), TypeError);
+  assert.equal(countries[0].countryAlphaTwo, 'AD');
 });

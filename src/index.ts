@@ -1,7 +1,7 @@
 import snapshot from "./countries.json" with { type: "json" };
-import type { Country, CountryFilter, CountryOption, CountryOptionsConfig } from "./types.js";
+import type { Country, CountryFilter, CountryOption, CountryOptionsConfig, CountryQuery, CountryQueryRecord } from "./types.js";
 
-export type { Country, CountryFilter, CountryOption, CountryOptionsConfig, NativeName, CapitalCity, DrivingSide, MeasurementSystem } from "./types.js";
+export type { Country, CountryFilter, CountryOption, CountryOptionsConfig, CountryQuery, CountryQueryRecord, CountryQueryFilter, CountrySortField, NativeName, CapitalCity, DrivingSide, MeasurementSystem } from "./types.js";
 
 function freeze<T>(value: T): T {
   if (value !== null && typeof value === "object") {
@@ -129,4 +129,36 @@ export function getCountryOptions({ locale = "en", filter = {} }: CountryOptions
     label: country.countryLocalizedNames[language] ?? country.countryName,
     flagUrl: country.flagUrl,
   })).sort((a, b) => collator.compare(a.label, b.label) || a.value.localeCompare(b.value));
+}
+
+/** Filter, localize, sort, and project countries in one offline query. */
+export function queryCountries<const Field extends keyof CountryQueryRecord = keyof CountryQueryRecord>(
+  { select, where = {}, locale, orderBy, limit }: CountryQuery<Field> = {},
+): readonly Pick<CountryQueryRecord, Field>[] {
+  if (limit !== undefined && (!Number.isSafeInteger(limit) || limit < 0)) {
+    throw new RangeError("limit must be a non-negative safe integer");
+  }
+  const language = locale === undefined ? undefined : resolveLocale(locale);
+  const { hasCallingCode, phoneCallingCode, ...filter } = where;
+  const callingCode = phoneCallingCode?.trim().replace(/^\+/, "");
+  let results: CountryQueryRecord[] = filterCountries(filter)
+    .filter(country =>
+      (hasCallingCode === undefined || (country.phoneCallingCode !== null) === hasCallingCode) &&
+      (callingCode === undefined || country.phoneCallingCode === callingCode)
+    )
+    .map(country => ({
+      ...country,
+      countryName: language === undefined ? country.countryName : country.countryLocalizedNames[language] ?? country.countryName,
+      phonePrefix: country.phoneCallingCode === null ? null : `+${country.phoneCallingCode}`,
+    }));
+  if (orderBy) {
+    const collator = new Intl.Collator(language ?? "en");
+    const direction = orderBy.direction === "desc" ? -1 : 1;
+    results.sort((a, b) => direction * (collator.compare(a[orderBy.field], b[orderBy.field]) || a.countryAlphaTwo.localeCompare(b.countryAlphaTwo)));
+  }
+  if (limit !== undefined) results = results.slice(0, limit);
+  return results.map(country => select === undefined
+    ? country
+    : Object.fromEntries(select.map(field => [field, country[field]])) as Pick<CountryQueryRecord, Field>
+  );
 }
