@@ -4,11 +4,7 @@ Country reference data and localized names for JavaScript applications. Includes
 249 ISO countries and territories, with no runtime dependencies or network calls.
 Flag artwork is hosted separately as SVGs on `assets.avgeek.io/country-flags/`.
 
-Version 0.1.1 moves all flag URLs to this shared public-assets path. Existing
-0.1.0 URLs on `oss-country-flags.avgeek.ltd` redirect to the same artwork.
-The compatibility Worker is maintained in `infra/flag-redirect`; deploy it with
-`npx wrangler@4.151.1 deploy --config infra/flag-redirect/wrangler.jsonc`.
-Keep the old hostname attached while released packages and stored URLs use it.
+Version 0.1.1 moves all flag URLs to this shared public-assets path.
 
 Package name: `@avgeek-oss/country-data`. It exports ESM and TypeScript
 declarations for Node.js 22+ and modern browser bundlers.
