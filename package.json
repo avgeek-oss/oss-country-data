@@ -1,6 +1,6 @@
 {
   "name": "@avgeek-oss/country-data",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Offline country reference data, localized names, flags, and typed lookups for JavaScript applications.",
   "type": "module",
   "license": "(MIT AND ODbL-1.0 AND Unicode-3.0)",

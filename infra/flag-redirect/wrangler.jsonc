@@ -1,0 +1,14 @@
+{
+  "name": "oss-country-flags-redirect",
+  "main": "index.mjs",
+  "account_id": "fb2f0215fc9d819e868f3ec3627abf03",
+  "compatibility_date": "2026-10-18",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "oss-country-flags.avgeek.ltd/*",
+      "zone_name": "avgeek.ltd"
+    }
+  ]
+}

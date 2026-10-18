@@ -2,7 +2,13 @@
 
 Country reference data and localized names for JavaScript applications. Includes
 249 ISO countries and territories, with no runtime dependencies or network calls.
-Flag artwork is hosted separately as SVGs on `oss-country-flags.avgeek.ltd`.
+Flag artwork is hosted separately as SVGs on `assets.avgeek.io/country-flags/`.
+
+Version 0.1.1 moves all flag URLs to this shared public-assets path. Existing
+0.1.0 URLs on `oss-country-flags.avgeek.ltd` redirect to the same artwork.
+The compatibility Worker is maintained in `infra/flag-redirect`; deploy it with
+`npx wrangler@4.151.1 deploy --config infra/flag-redirect/wrangler.jsonc`.
+Keep the old hostname attached while released packages and stored URLs use it.
 
 Package name: `@avgeek-oss/country-data`. It exports ESM and TypeScript
 declarations for Node.js 22+ and modern browser bundlers.
@@ -19,7 +25,7 @@ import {
 
 getCountry('in');          // India; also accepts IND or 356
 getCountryName('IN', 'ta'); // இந்தியா
-getCountryFlagUrl('IN');   // https://oss-country-flags.avgeek.ltd/in.svg
+getCountryFlagUrl('IN');   // https://assets.avgeek.io/country-flags/in.svg
 getCountryOptions({ locale: 'fr', filter: { isIndependent: true } });
 filterCountries({ currencyCode: 'EUR', isLandlocked: true });
 searchCountries('भारत', 'hi');
@@ -148,7 +154,8 @@ npm run verify
 Review the snapshot diff, update `datasetInfo` when its date/schema changes,
 and commit it before release. Do not put Rootset credentials in this repository.
 Import fails on missing fields, duplicate ISO identifiers, incomplete locale
-maps, or missing parent references. Tests validate the data and public API.
+maps, or missing parent references. The importer migrates legacy flag URLs from
+the old hostname to the shared public-assets path. Tests validate the data and public API.
 Package verification installs the packed tarball into a clean temporary project
 and checks JavaScript and TypeScript consumers.
 
