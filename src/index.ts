@@ -22,7 +22,7 @@ export const datasetInfo = Object.freeze({
   source: "Rootset Countries",
   schemaVersion: 40,
   localizationSource: "Unicode CLDR 48.2",
-  snapshotDate: "2026-10-13",
+  snapshotDate: "2026-10-18",
   countryCount: countries.length,
 });
 
