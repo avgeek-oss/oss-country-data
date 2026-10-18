@@ -163,7 +163,7 @@ to a commit on `main`. The publish job downloads the tested tarball, checks its
 integrity, publishes it, then verifies the registry bytes and a fresh consumer.
 
 Configure the package's npm trusted publisher for owner `avgeek-oss`, repository
-`oss-country-data`, and workflow `ci.yml`, with publishing allowed. GitHub OIDC
+`pkg-country-data`, and workflow `ci.yml`, with publishing allowed. GitHub OIDC
 authenticates the publish job; no npm token secret is needed. npm supplies
 provenance for trusted publications.
 
