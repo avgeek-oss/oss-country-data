@@ -9,7 +9,7 @@ const countries = validateData(exported.map(row => {
   const country = row.values ?? row;
   return {
     ...country,
-    flagUrl: country.flagUrl?.replace('https://oss-country-flags.avgeek.ltd/', 'https://assets.avgeek.io/country-flags/'),
+    flagUrl: country.flagUrl?.replace(/^https:\/\/(?:oss-country-flags\.avgeek\.ltd\/|assets\.avgeek\.io\/country-flags\/)/, 'https://assets.avgeek.ltd/country-flags/'),
   };
 }))
   .sort((a, b) => a.countryAlphaTwo.localeCompare(b.countryAlphaTwo));

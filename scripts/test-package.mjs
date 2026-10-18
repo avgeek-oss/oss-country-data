@@ -23,7 +23,7 @@ try {
   execFileSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--registry=https://registry.npmjs.org', target], { cwd: temporary, stdio: 'pipe' });
   const consumer = `import { getCountry, getCountryName, getCountryOptions, getCountryFlagUrl, queryCountries } from '@avgeek-oss/country-data';
     import data from '@avgeek-oss/country-data/data' with { type: 'json' };
-    if (getCountryFlagUrl('IN') !== 'https://assets.avgeek.io/country-flags/in.svg' || data.some(country => country.flagUrl !== 'https://assets.avgeek.io/country-flags/' + country.countryAlphaTwo.toLowerCase() + '.svg')) throw new Error('Packed flag URLs failed');
+    if (getCountryFlagUrl('IN') !== 'https://assets.avgeek.ltd/country-flags/in.svg' || data.some(country => country.flagUrl !== 'https://assets.avgeek.ltd/country-flags/' + country.countryAlphaTwo.toLowerCase() + '.svg')) throw new Error('Packed flag URLs failed');
     if (getCountry('IND')?.countryNumeric !== '356' || getCountryName('IN', 'ta') !== 'இந்தியா' || data.length !== 249 || getCountryOptions().length !== 249 || queryCountries({ select: ['phonePrefix'], where: { phoneCallingCode: '91' } })[0]?.phonePrefix !== '+91') throw new Error('Packed API failed');`;
   await writeFile(join(temporary, 'consumer.mjs'), consumer);
   execFileSync(process.execPath, [join(temporary, 'consumer.mjs')], { cwd: temporary, stdio: 'pipe' });

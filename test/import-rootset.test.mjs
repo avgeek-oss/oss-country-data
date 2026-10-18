@@ -11,14 +11,17 @@ test('Rootset imports migrate legacy flag URLs and still reject unrelated hosts'
     await cp(new URL('../scripts/', import.meta.url), join(directory, 'scripts'), { recursive: true });
     await mkdir(join(directory, 'src'));
     const snapshot = JSON.parse(await readFile(new URL('../src/countries.json', import.meta.url), 'utf8'));
-    const rows = snapshot.map(country => ({ values: {
-      ...country,
-      flagUrl: country.flagUrl.replace('https://assets.avgeek.io/country-flags/', 'https://oss-country-flags.avgeek.ltd/'),
-    } }));
     const exported = join(directory, 'export.json');
-    await writeFile(exported, JSON.stringify(rows));
-    execFileSync(process.execPath, [join(directory, 'scripts/import-rootset.mjs'), exported]);
-    assert.deepEqual(JSON.parse(await readFile(join(directory, 'src/countries.json'), 'utf8')), snapshot);
+    for (const origin of ['https://oss-country-flags.avgeek.ltd/', 'https://assets.avgeek.io/country-flags/']) {
+      const rows = snapshot.map(country => ({ values: {
+        ...country,
+        flagUrl: country.flagUrl.replace('https://assets.avgeek.ltd/country-flags/', origin),
+      } }));
+      await writeFile(exported, JSON.stringify(rows));
+      execFileSync(process.execPath, [join(directory, 'scripts/import-rootset.mjs'), exported]);
+      assert.deepEqual(JSON.parse(await readFile(join(directory, 'src/countries.json'), 'utf8')), snapshot);
+    }
+    const rows = structuredClone(snapshot).map(values => ({ values }));
     rows[0].values.flagUrl = 'https://example.com/ad.svg';
     await writeFile(exported, JSON.stringify(rows));
     assert.throws(() => execFileSync(process.execPath, [join(directory, 'scripts/import-rootset.mjs'), exported], { stdio: 'pipe' }));

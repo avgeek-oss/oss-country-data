@@ -30,7 +30,7 @@ export function validateData(countries) {
     assert.match(code, /^[A-Z]{2}$/);
     assert.match(country.countryAlphaThree, /^[A-Z]{3}$/);
     assert.match(country.countryNumeric, /^\d{3}$/);
-    assert.equal(country.flagUrl, `https://assets.avgeek.io/country-flags/${code.toLowerCase()}.svg`);
+    assert.equal(country.flagUrl, `https://assets.avgeek.ltd/country-flags/${code.toLowerCase()}.svg`);
     assert.ok(Number.isFinite(Date.parse(country.lastVerifiedAt)), `${code} verification timestamp`);
     assert.ok(country.phoneCallingCode === null || /^\d{1,3}$/.test(country.phoneCallingCode), `${code} calling code`);
     assert.ok(country.phoneAreaCodeSuffixes.every(v => /^\d+$/.test(v)), `${code} area suffixes`);

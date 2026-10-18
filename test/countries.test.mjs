@@ -93,7 +93,7 @@ test('picker options are localized, filtered, sorted, and isolated from the snap
   for (let i = 1; i < options.length; i++) assert.ok(collator.compare(options[i - 1].label, options[i].label) <= 0);
   options[0].label = 'Changed';
   assert.notEqual(getCountryOptions({ locale: 'fr', filter: { isIndependent: true } })[0].label, 'Changed');
-  assert.equal(getCountryFlagUrl('in'), 'https://assets.avgeek.io/country-flags/in.svg');
+  assert.equal(getCountryFlagUrl('in'), 'https://assets.avgeek.ltd/country-flags/in.svg');
   assert.equal(getCountryFlagUrl('ZZ'), undefined);
 });
 
